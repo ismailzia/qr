@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Link to QR: free QR code generator</title>
+  <meta name="description" content="Paste any link, a website, an Instagram profile, a menu, and get a QR code that opens it. Free, no sign-up, made in your browser.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f4f4f5" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Link to QR">
+  <meta property="og:description" content="Paste any link and get a QR code that opens it. Free, no sign-up.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script src="qrcode.js" defer></script>
+  <script src="app.js" type="module"></script>
+</head>
+<body>
+  <main class="page">
+    <section class="intro" aria-labelledby="title">
+      <p class="brand">
+        <svg viewBox="0 0 7 7" aria-hidden="true"><path fill-rule="evenodd" d="M0,0h7v7h-7zM1,1h5v5h-5zM2,2h3v3h-3z"/></svg>
+        Link to QR
+      </p>
+
+      <div class="pitch">
+        <h1 id="title">Turn any link into a <mark>QR&nbsp;code</mark>.</h1>
+        <p class="lede">Paste a website, an Instagram profile, a menu, anything. Whoever scans the code lands on that link.</p>
+
+        <form id="form" class="field" novalidate>
+          <label for="link">Your link</label>
+          <div class="field-row">
+            <input id="link" name="link" type="url" inputmode="url" placeholder="instagram.com/yourname" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="hint">
+            <button type="button" id="paste" class="btn btn-ink" hidden>Paste</button>
+          </div>
+          <p id="hint" class="hint">Free, no sign-up. The code holds the link itself, so it never expires.</p>
+        </form>
+        <noscript><p class="hint is-error">This page needs JavaScript to draw the code.</p></noscript>
+      </div>
+    </section>
+
+    <section id="stage" class="stage" data-state="empty" aria-label="Your QR code">
+      <div class="stage-inner">
+        <div class="tile">
+          <svg id="qr" viewBox="0 0 37 37" role="img" aria-label="No QR code yet" shape-rendering="crispEdges">
+            <path id="qr-path" fill-rule="evenodd" d="M4,4h7v7h-7zM5,5h5v5h-5zM6,6h3v3h-3zM26,4h7v7h-7zM27,5h5v5h-5zM28,6h3v3h-3zM4,26h7v7h-7zM5,27h5v5h-5zM6,28h3v3h-3z"/>
+          </svg>
+          <p class="tile-note tile-note-empty">Your code shows up here</p>
+          <p class="tile-note tile-note-error">Too long to fit in a QR code</p>
+        </div>
+
+        <p class="readout">
+          <span class="readout-label">Scans to</span>
+          <a id="target" class="readout-target" target="_blank" rel="noopener noreferrer"></a>
+        </p>
+
+        <div class="actions">
+          <button type="button" id="png" class="btn btn-ink" disabled>Download PNG</button>
+          <button type="button" id="svg" class="btn btn-line" disabled>SVG</button>
+          <button type="button" id="copy" class="btn btn-line" disabled hidden>Copy</button>
+          <button type="button" id="share" class="btn btn-line" disabled hidden>Share</button>
+        </div>
+        <p id="status" class="sr-only" role="status"></p>
+      </div>
+    </section>
+
+    <footer class="fineprint">Made in your browser. Your link is never uploaded.</footer>
+  </main>
+</body>
+</html>

@@ -79,6 +79,7 @@ body {
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 2rem;
+  min-width: 0; /* lets the form shrink on very narrow screens */
   padding: 1.25rem max(1.25rem, env(safe-area-inset-right)) 2.5rem max(1.25rem, env(safe-area-inset-left));
 }
 
@@ -128,6 +129,7 @@ body {
 
 .pitch {
   align-self: center;
+  min-width: 0;
   max-width: 36rem;
 }
 
@@ -138,9 +140,12 @@ h1 {
   line-height: 1;
   letter-spacing: -0.035em;
   text-wrap: balance;
+  isolation: isolate;
 }
 
 mark {
+  position: relative;
+  z-index: -1; /* behind the letters, so it cannot cut the tail of the "y" above it */
   background: var(--accent);
   color: #111113;
   padding: 0 0.12em;
@@ -200,8 +205,9 @@ mark {
 }
 
 .hint {
-  min-height: 1.5em;
+  min-height: 3em; /* two lines, so the page does not jump when the message changes */
   margin: 0.625rem 0 0;
+  text-wrap: balance;
   color: var(--muted);
   font-size: 0.9375rem;
 }
@@ -274,11 +280,19 @@ mark {
   width: min(100%, 26rem);
 }
 
+/* Two columns: the tile gives way so code and buttons fit a short laptop window. */
+@media (min-width: 60rem) {
+  .stage-inner {
+    width: min(100%, 26rem, max(15rem, 100dvh - 18rem));
+  }
+}
+
 .tile {
   display: grid;
   place-items: center;
   aspect-ratio: 1;
   background: #fff;
+  forced-color-adjust: none; /* keep white behind the code in Windows contrast themes */
 }
 
 .tile > * {

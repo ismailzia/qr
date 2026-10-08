@@ -21,6 +21,7 @@ let code = null; // { text, isLink, qr, size } while a QR is on screen
 qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
 
 function encode(text) {
+  if (text.length > 2331) throw new RangeError("too long"); // level M tops out at 2331 bytes
   const qr = qrcode(0, "M");
   qr.addData(text);
   qr.make(); // throws when the text does not fit in the largest QR
@@ -59,14 +60,13 @@ function render() {
     }
   }
 
-  const changed = stage.dataset.state !== state;
   stage.dataset.state = state;
   svg.setAttribute("viewBox", code ? `0 0 ${code.size} ${code.size}` : frame.box);
   svg.setAttribute("aria-label", code ? `QR code for ${code.text}` : "No QR code yet");
   path.setAttribute("d", code ? pathFor(code.qr) : frame.d);
 
   target.textContent = code ? code.text : "";
-  if (code && /^https?:\/\//i.test(code.text)) target.href = code.text;
+  if (code?.isLink && /^https?:\/\//i.test(code.text)) target.href = code.text;
   else target.removeAttribute("href");
 
   hint.textContent = note;
@@ -74,7 +74,8 @@ function render() {
   if (state === "error") input.setAttribute("aria-invalid", "true");
   else input.removeAttribute("aria-invalid");
   for (const name of ["png", "svg", "copy", "share"]) buttons[name].disabled = !code;
-  if (changed) status.textContent = state === "ready" ? "QR code ready." : state === "error" ? note : "";
+  const said = code?.isLink ? "QR code ready." : state === "empty" ? "" : note;
+  if (status.textContent !== said) status.textContent = said;
 }
 
 function pngBlob() {
@@ -108,8 +109,8 @@ function fileName(ext) {
   const slug = code.text
     .replace(/^[a-z][a-z0-9+-]*:\/*/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
-    .replace(/^-|-$/g, "")
     .slice(0, 40)
+    .replace(/^-|-$/g, "")
     .toLowerCase();
   return `qr-${slug || "code"}.${ext}`;
 }
@@ -119,14 +120,14 @@ function save(blob, ext) {
   a.href = URL.createObjectURL(blob);
   a.download = fileName(ext);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  setTimeout(() => URL.revokeObjectURL(a.href), 40000); // iPhones ask before saving, so keep it a while
 }
 
 function flash(button, text) {
-  const label = button.textContent;
+  button.dataset.label ??= button.textContent;
   button.textContent = text;
   status.textContent = text;
-  setTimeout(() => (button.textContent = label), 1600);
+  setTimeout(() => (button.textContent = button.dataset.label), 1600);
 }
 
 // On a phone the code sits below the form, so bring it into view.
@@ -151,7 +152,8 @@ if (navigator.clipboard?.readText) {
   buttons.paste.hidden = false;
   buttons.paste.addEventListener("click", async () => {
     try {
-      input.value = await navigator.clipboard.readText();
+      // A url input deletes line breaks, which would glue two lines into one fake link.
+      input.value = (await navigator.clipboard.readText()).replace(/[\r\n]+/g, " ");
       render();
       reveal();
     } catch {

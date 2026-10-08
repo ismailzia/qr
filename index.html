@@ -34,7 +34,7 @@
         <form id="form" class="field" novalidate>
           <label for="link">Your link</label>
           <div class="field-row">
-            <input id="link" name="link" type="url" inputmode="url" placeholder="instagram.com/yourname" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="hint">
+            <input id="link" name="link" type="url" inputmode="url" placeholder="instagram.com/you" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="hint">
             <button type="button" id="paste" class="btn btn-ink" hidden>Paste</button>
           </div>
           <p id="hint" class="hint">Free, no sign-up. The code holds the link itself, so it never expires.</p>
@@ -53,22 +53,22 @@
           <p class="tile-note tile-note-error">Too long to fit in a QR code</p>
         </div>
 
+        <div class="actions">
+          <button type="button" id="png" class="btn btn-ink" disabled>Download PNG</button>
+          <button type="button" id="svg" class="btn btn-line" aria-label="Download SVG" disabled>SVG</button>
+          <button type="button" id="copy" class="btn btn-line" disabled hidden>Copy</button>
+          <button type="button" id="share" class="btn btn-line" disabled hidden>Share</button>
+        </div>
+
         <p class="readout">
           <span class="readout-label">Scans to</span>
           <a id="target" class="readout-target" target="_blank" rel="noopener noreferrer"></a>
         </p>
-
-        <div class="actions">
-          <button type="button" id="png" class="btn btn-ink" disabled>Download PNG</button>
-          <button type="button" id="svg" class="btn btn-line" disabled>SVG</button>
-          <button type="button" id="copy" class="btn btn-line" disabled hidden>Copy</button>
-          <button type="button" id="share" class="btn btn-line" disabled hidden>Share</button>
-        </div>
         <p id="status" class="sr-only" role="status"></p>
       </div>
     </section>
 
-    <footer class="fineprint">Made in your browser. Your link is never uploaded.</footer>
+    <footer class="fineprint">Made in your browser. Your link is never uploaded. QR Code is a registered trademark of DENSO WAVE INCORPORATED.</footer>
   </main>
 </body>
 </html>

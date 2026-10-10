@@ -1,20 +1,20 @@
 <!doctype html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Link to QR: free QR code generator</title>
-  <meta name="description" content="Paste any link, a website, an Instagram profile, a menu, and get a QR code that opens it. Free, no sign-up, made in your browser.">
+  <title>Link to QR : générateur de QR code gratuit</title>
+  <meta name="description" content="Collez un lien (site web, profil Instagram, menu) et obtenez un QR code qui l'ouvre. Ou créez un QR code contact qui vous enregistre dans un téléphone. Gratuit, sans inscription, créé dans votre navigateur.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f4f4f5" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f0f11" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c111d" media="(prefers-color-scheme: dark)">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Link to QR">
-  <meta property="og:description" content="Paste any link and get a QR code that opens it. Free, no sign-up.">
+  <meta property="og:description" content="Collez un lien et obtenez un QR code qui l'ouvre. Gratuit, sans inscription.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="fonts/bricolage-grotesque.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/rubik.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
   <script src="qrcode.js" defer></script>
   <script src="app.js" type="module"></script>
@@ -23,52 +23,75 @@
   <main class="page">
     <section class="intro" aria-labelledby="title">
       <p class="brand">
-        <svg viewBox="0 0 7 7" aria-hidden="true"><path fill-rule="evenodd" d="M0,0h7v7h-7zM1,1h5v5h-5zM2,2h3v3h-3z"/></svg>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#2563eb"/><rect x="7" y="7" width="8" height="8" rx="2.2" fill="#fff"/><rect x="17" y="7" width="8" height="8" rx="2.2" fill="#fff"/><rect x="7" y="17" width="8" height="8" rx="2.2" fill="#fff"/><circle cx="21" cy="21" r="3.2" fill="#fff"/></svg>
         Link to QR
       </p>
 
       <div class="pitch">
-        <h1 id="title">Turn any link into a <mark>QR&nbsp;code</mark>.</h1>
-        <p class="lede">Paste a website, an Instagram profile, a menu, anything. Whoever scans the code lands on that link.</p>
+        <h1 id="title">Transformez <span data-for="link">un lien</span><span data-for="contact" hidden>un contact</span> en <mark>QR&nbsp;code</mark>.</h1>
+        <p class="lede" data-for="link">Collez un site web, un profil Instagram, un menu, ce que vous voulez. La personne qui scanne le code arrive sur ce lien.</p>
+        <p class="lede" data-for="contact" hidden>Saisissez vos coordonnées. La personne qui scanne le code vous ajoute à ses contacts en un geste.</p>
 
         <form id="form" class="field" novalidate>
-          <label for="link">Your link</label>
-          <div class="field-row">
-            <input id="link" name="link" type="url" inputmode="url" placeholder="instagram.com/you" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="hint">
-            <button type="button" id="paste" class="btn btn-ink" hidden>Paste</button>
+          <div class="switch" role="group" aria-label="Contenu du code">
+            <button type="button" class="btn" data-mode="link" aria-pressed="true">Lien</button>
+            <button type="button" class="btn" data-mode="contact" aria-pressed="false">Contact</button>
           </div>
-          <p id="hint" class="hint">Free, no sign-up. The code holds the link itself, so it never expires.</p>
+
+          <div data-for="link">
+            <label for="link">Votre lien</label>
+            <div class="field-row">
+              <input id="link" name="link" type="url" inputmode="url" placeholder="instagram.com/vous" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-describedby="hint">
+              <button type="button" id="paste" class="btn btn-ink" hidden>Coller</button>
+            </div>
+          </div>
+
+          <div id="contact" data-for="contact" hidden>
+            <div class="contact">
+              <label>Prénom <input name="first" type="text" autocomplete="given-name"></label>
+              <label>Nom <input name="last" type="text" autocomplete="family-name"></label>
+              <label class="roomy">Téléphone <input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+33 6 00 00 00 00"></label>
+              <label class="roomy">E-mail <input name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false"></label>
+              <label>Société <input name="org" type="text" autocomplete="organization"></label>
+              <label>Fonction <input name="title" type="text" autocomplete="organization-title"></label>
+              <label class="wide">Site web <input name="url" type="text" inputmode="url" autocomplete="url" autocapitalize="none" spellcheck="false" enterkeyhint="done"></label>
+            </div>
+            <p class="more">Envie d'une photo et de boutons pour appeler en un geste ? <a href="card/">Voir une page contact</a>.</p>
+          </div>
+
+          <p id="hint" class="hint">Gratuit, sans inscription. Le code contient le lien lui-même, il n'expire donc jamais.</p>
         </form>
-        <noscript><p class="hint is-error">This page needs JavaScript to draw the code.</p></noscript>
+        <noscript><p class="hint is-error">Cette page a besoin de JavaScript pour dessiner le code.</p></noscript>
       </div>
     </section>
 
-    <section id="stage" class="stage" data-state="empty" aria-label="Your QR code">
+    <section id="stage" class="stage" data-state="empty" aria-label="Votre QR code">
       <div class="stage-inner">
         <div class="tile">
-          <svg id="qr" viewBox="0 0 37 37" role="img" aria-label="No QR code yet" shape-rendering="crispEdges">
+          <svg id="qr" viewBox="0 0 37 37" role="img" aria-label="Pas encore de QR code" shape-rendering="crispEdges">
             <path id="qr-path" fill-rule="evenodd" d="M4,4h7v7h-7zM5,5h5v5h-5zM6,6h3v3h-3zM26,4h7v7h-7zM27,5h5v5h-5zM28,6h3v3h-3zM4,26h7v7h-7zM5,27h5v5h-5zM6,28h3v3h-3z"/>
           </svg>
-          <p class="tile-note tile-note-empty">Your code shows up here</p>
-          <p class="tile-note tile-note-error">Too long to fit in a QR code</p>
+          <p class="tile-note tile-note-empty">Votre code apparaît ici</p>
+          <p class="tile-note tile-note-error">Trop long pour un QR code</p>
         </div>
 
         <div class="actions">
-          <button type="button" id="png" class="btn btn-ink" disabled>Download PNG</button>
-          <button type="button" id="svg" class="btn btn-line" aria-label="Download SVG" disabled>SVG</button>
-          <button type="button" id="copy" class="btn btn-line" disabled hidden>Copy</button>
-          <button type="button" id="share" class="btn btn-line" disabled hidden>Share</button>
+          <button type="button" id="png" class="btn btn-ink" disabled>Télécharger en PNG</button>
+          <button type="button" id="svg" class="btn btn-line" aria-label="Télécharger en SVG" disabled>SVG</button>
+          <button type="button" id="copy" class="btn btn-line" disabled hidden>Copier</button>
+          <button type="button" id="share" class="btn btn-line" disabled hidden>Partager</button>
         </div>
 
         <p class="readout">
-          <span class="readout-label">Scans to</span>
+          <span class="readout-label" data-for="link">Ouvre</span>
+          <span class="readout-label" data-for="contact" hidden>Ajoute aux contacts</span>
           <a id="target" class="readout-target" target="_blank" rel="noopener noreferrer"></a>
         </p>
         <p id="status" class="sr-only" role="status"></p>
       </div>
     </section>
 
-    <footer class="fineprint">Made in your browser. Your link is never uploaded. QR Code is a registered trademark of DENSO WAVE INCORPORATED.</footer>
+    <footer class="fineprint">Créé dans votre navigateur. Rien de ce que vous saisissez n'est envoyé. QR Code est une marque déposée de DENSO WAVE INCORPORATED.</footer>
   </main>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import { toTarget } from "./link.js";
+import { buildVCard, fullName } from "./vcard.js";
 
 const QUIET = 4; // modules of white margin the QR spec asks for
 const PNG_SIZE = 1200; // smallest edge of the downloaded PNG, in pixels
@@ -15,8 +16,18 @@ const status = $("status");
 const buttons = { png: $("png"), svg: $("svg"), copy: $("copy"), share: $("share"), paste: $("paste") };
 
 const frame = { d: path.getAttribute("d"), box: svg.getAttribute("viewBox") };
-const hintText = hint.textContent;
-let code = null; // { text, isLink, qr, size } while a QR is on screen
+const contactInputs = $("contact").querySelectorAll("input");
+const modeButtons = document.querySelectorAll("[data-mode]");
+const COPY = {
+  link: { hint: hint.textContent, tooLong: "C'est trop long pour un QR code. Essayez un lien plus court." },
+  contact: {
+    hint: "Le scan ouvre « Ajouter un contact » avec ces informations déjà remplies. Laissez vide ce qui est inutile.",
+    tooLong: "C'est trop pour un seul QR code. Raccourcissez ou videz un champ.",
+    noName: "Ajoutez un nom ou une société pour obtenir un code.",
+  },
+};
+let mode = "link";
+let code = null; // { text, isLink, label?, qr, size } while a QR is on screen
 
 qrcode.stringToBytes = qrcode.stringToBytesFuncs["UTF-8"];
 
@@ -43,38 +54,47 @@ function pathFor(qr) {
   return d;
 }
 
+// What the code should carry: the link, or the contact as a vCard.
+function wantedNow() {
+  if (mode === "link") return toTarget(input.value);
+  const c = Object.fromEntries([...contactInputs].map((el) => [el.name, el.value]));
+  const text = buildVCard({ ...c, url: toTarget(c.url)?.text }, { fold: false });
+  return text ? { text, isLink: true, label: fullName(c) } : null;
+}
+
 function render() {
-  const wanted = toTarget(input.value);
+  const wanted = wantedNow();
   let state = "empty";
-  let note = hintText;
+  let note = COPY[mode].hint;
   code = null;
+  if (mode === "contact" && !wanted && [...contactInputs].some((el) => el.value.trim())) note = COPY.contact.noName;
   if (wanted) {
     try {
       const qr = encode(wanted.text);
       code = { ...wanted, qr, size: qr.getModuleCount() + QUIET * 2 };
       state = "ready";
-      if (!wanted.isLink) note = "No link in there, so phones will show it as plain text.";
+      if (!wanted.isLink) note = "Ce n'est pas un lien : les téléphones l'afficheront comme du texte.";
     } catch {
       state = "error";
-      note = "That is too long for a QR code. Try a shorter link.";
+      note = COPY[mode].tooLong;
     }
   }
 
   stage.dataset.state = state;
   svg.setAttribute("viewBox", code ? `0 0 ${code.size} ${code.size}` : frame.box);
-  svg.setAttribute("aria-label", code ? `QR code for ${code.text}` : "No QR code yet");
+  svg.setAttribute("aria-label", code ? `QR code pour ${code.label ?? code.text}` : "Pas encore de QR code");
   path.setAttribute("d", code ? pathFor(code.qr) : frame.d);
 
-  target.textContent = code ? code.text : "";
+  target.textContent = code ? code.label ?? code.text : "";
   if (code?.isLink && /^https?:\/\//i.test(code.text)) target.href = code.text;
   else target.removeAttribute("href");
 
   hint.textContent = note;
   hint.classList.toggle("is-error", state === "error");
-  if (state === "error") input.setAttribute("aria-invalid", "true");
+  if (state === "error" && mode === "link") input.setAttribute("aria-invalid", "true");
   else input.removeAttribute("aria-invalid");
   for (const name of ["png", "svg", "copy", "share"]) buttons[name].disabled = !code;
-  const said = code?.isLink ? "QR code ready." : state === "empty" ? "" : note;
+  const said = code?.isLink ? "QR code prêt." : state === "empty" ? "" : note;
   if (status.textContent !== said) status.textContent = said;
 }
 
@@ -106,7 +126,7 @@ function svgBlob() {
 }
 
 function fileName(ext) {
-  const slug = code.text
+  const slug = (code.label ?? code.text)
     .replace(/^[a-z][a-z0-9+-]*:\/*/i, "")
     .replace(/[^a-z0-9]+/gi, "-")
     .slice(0, 40)
@@ -137,11 +157,19 @@ function reveal() {
   stage.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "nearest" });
 }
 
-input.addEventListener("input", render);
+function setMode(next) {
+  mode = next;
+  for (const el of document.querySelectorAll("[data-for]")) el.hidden = el.dataset.for !== mode;
+  for (const button of modeButtons) button.setAttribute("aria-pressed", button.dataset.mode === mode);
+  render();
+}
+
+for (const button of modeButtons) button.addEventListener("click", () => setMode(button.dataset.mode));
+form.addEventListener("input", render);
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  if (matchMedia("(pointer: coarse)").matches) input.blur(); // closes the phone keyboard
+  if (matchMedia("(pointer: coarse)").matches) document.activeElement.blur(); // closes the phone keyboard
   reveal();
 });
 
@@ -167,9 +195,9 @@ if (navigator.clipboard?.write && window.ClipboardItem) {
   buttons.copy.addEventListener("click", async () => {
     try {
       await navigator.clipboard.write([new ClipboardItem({ "image/png": pngBlob() })]);
-      flash(buttons.copy, "Copied");
+      flash(buttons.copy, "Copié");
     } catch {
-      flash(buttons.copy, "Not copied");
+      flash(buttons.copy, "Non copié");
     }
   });
 }

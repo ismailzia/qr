@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- The three lines below are what shows when the link is shared in WhatsApp or Messenger. Edit them by hand. -->
+  <title>Maître Ilyas Bouazzaoui</title>
+  <meta property="og:title" content="Maître Ilyas Bouazzaoui">
+  <meta property="og:description" content="Enregistrez mon contact ou appelez-moi.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: blob:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f7fb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0c111d" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="profile">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../fonts/rubik.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../card-page.css">
+  <script src="../qrcode.js" defer></script>
+  <script src="details.js" defer></script>
+  <script src="../card-page.js" type="module"></script>
+</head>
+<body>
+  <main class="card">
+    <header id="face" class="face">
+      <div id="avatar" class="avatar" aria-hidden="true"></div>
+      <h1 id="name"></h1>
+      <p id="role" class="role"></p>
+      <p id="bio" class="bio"></p>
+      <div class="card-actions">
+        <button type="button" id="save" class="btn">Enregistrer le contact</button>
+        <button type="button" id="share" class="btn">Partager</button>
+      </div>
+      <p id="status" class="sr-only" role="status"></p>
+    </header>
+
+    <ul id="rows" class="rows"></ul>
+
+    <details class="show-qr">
+      <summary>Afficher le QR code à partager</summary>
+      <img id="qr" alt="QR code de cette page" width="240" height="240">
+      <p>Faites scanner ce code sur votre écran pour ouvrir cette page.</p>
+    </details>
+
+    <noscript><p class="bio">Cette page a besoin de JavaScript pour afficher le contact.</p></noscript>
+    <footer class="card-foot">Créé avec <a href="../">Link to QR</a></footer>
+  </main>
+</body>
+</html>

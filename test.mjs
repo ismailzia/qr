@@ -34,3 +34,49 @@ for (const [input, expected] of cases) {
   assert.deepEqual(toTarget(input), expected, JSON.stringify(input));
 }
 console.log(`ok, ${cases.length} cases`);
+
+// vcard.js
+const { buildVCard, fullName } = await import("./vcard.js");
+
+assert.equal(buildVCard({}), "");
+assert.equal(buildVCard({ phone: "0612345678", email: "a@b.com" }), "", "no name, no company: no card");
+assert.equal(fullName({ first: " Sara ", last: "Benali", org: "Studio Atlas" }), "Sara Benali");
+assert.equal(fullName({ org: "Studio Atlas" }), "Studio Atlas");
+
+assert.equal(
+  buildVCard({
+    first: "Sara",
+    last: "Benali",
+    org: "Atlas; Design, Co",
+    title: " ",
+    phone: "+212 6 12-34-56-78",
+    whatsapp: "+212612345678",
+    email: " sara@example.com ",
+    url: "https://example.com",
+    links: [{ label: "Instagram", url: "https://instagram.com/sara" }, null],
+    address: "12 Example Street\nOujda",
+    note: "back\\slash",
+  }),
+  [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    "N:Benali;Sara;;;",
+    "FN:Sara Benali",
+    "ORG:Atlas\\; Design\\, Co",
+    "TEL;TYPE=CELL:+212612345678", // the same WhatsApp number is not listed twice
+    "EMAIL;TYPE=INTERNET:sara@example.com",
+    "URL:https://example.com",
+    "URL;TYPE=Instagram:https://instagram.com/sara",
+    "ADR;TYPE=WORK:;;12 Example Street\\nOujda;;;;",
+    "NOTE:back\\\\slash",
+    "END:VCARD",
+  ].join("\r\n"),
+);
+
+const long = { first: "Sara", note: "x".repeat(200) };
+const folded = buildVCard(long).split("\r\n");
+assert.ok(folded.every((line) => line.length <= 75), "folded lines stay within 75");
+assert.equal(buildVCard(long).replace(/\r\n /g, ""), buildVCard(long, { fold: false }), "unfolding gives the same card");
+assert.ok(buildVCard({ prefix: "Dr", first: "A", last: "B" }).includes("N:B;A;;Dr;\r\nFN:Dr A B"));
+assert.ok(buildVCard({ first: "A", phone: "1", whatsapp: "2" }).includes("TEL;TYPE=CELL,WhatsApp:2"));
+console.log("ok, vcard");
